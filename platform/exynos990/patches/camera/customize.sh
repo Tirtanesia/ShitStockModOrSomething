@@ -122,12 +122,12 @@ elif [[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 36 ]]; then
         "system/lib64/libstagefright.so" 0 0 644 \
         "u:object_r:system_lib_file:s0"
 
-    # The Android 16 media stack retained Samsung's background recording API,
+ x̌   # The Android 16 media stack retained Samsung's background recording API,
     # but MediaCodecSource::suspendRecording(bool) is now a no-op. Exynos 990
     # Super Slow Motion still creates its persistent encoder input suspended
     # and relies on that method to resume it, otherwise the recording finishes
     # with zero encoded frames. Start that input active instead.
-    # HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
+    HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
         "810240f97ef9019421f5ffd021481091e00314aa2200805225fd0194" \
         "810240f97ef9019421f5ffd021481091e00314aa0200805225fd0194"
 
@@ -143,9 +143,9 @@ else
     # MediaCodecSource::suspendRecording(bool) remains a no-op, so start the
     # persistent encoder input active instead of asking that method to resume
     # it later.
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
-        "140340f9e00315aa810240f91d2b0294e1f4ff9021d83c91e00314aa2200805206310294" \
-        "140340f9e00315aa810240f91d2b0294e1f4ff9021d83c91e00314aa0200805206310294"
+    # HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
+    #   "140340f9e00315aa810240f91d2b0294e1f4ff9021d83c91e00314aa2200805206310294" \
+    #    "140340f9e00315aa810240f91d2b0294e1f4ff9021d83c91e00314aa0200805206310294"
 
     # The Android 17 setupVideoEncoder call site branches 16 instructions to
     # the normal continuation.  Force that branch when the legacy Exynos HEVC
