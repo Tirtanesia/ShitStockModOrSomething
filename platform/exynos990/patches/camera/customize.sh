@@ -127,7 +127,7 @@ elif [[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 36 ]]; then
     # Super Slow Motion still creates its persistent encoder input suspended
     # and relies on that method to resume it, otherwise the recording finishes
     # with zero encoded frames. Start that input active instead.
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
+    # HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
         "810240f97ef9019421f5ffd021481091e00314aa2200805225fd0194" \
         "810240f97ef9019421f5ffd021481091e00314aa0200805225fd0194"
 
