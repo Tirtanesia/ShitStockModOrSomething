@@ -150,7 +150,7 @@ else
     # The Android 17 setupVideoEncoder call site branches 16 instructions to
     # the normal continuation.  Force that branch when the legacy Exynos HEVC
     # OMX encoder reports temporal SVC as unsupported.
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
+    # HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
         "e10f40b9e28b40b9e00313aa11f7059400020034fa03002a" \
         "e10f40b9e28b40b9e00313aa11f7059410000014fa03002a"
 
