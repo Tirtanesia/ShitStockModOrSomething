@@ -121,7 +121,7 @@ elif [[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 36 ]]; then
     ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" \
         "system/lib64/libstagefright.so" 0 0 644 \
         "u:object_r:system_lib_file:s0"
-
+fi
 LOG_STEP_IN "- Adding prebuilt libs from other devices"
 BLOBS_LIST="
 system/lib64/libc++_shared.so
