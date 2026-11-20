@@ -1,4 +1,4 @@
-name: Build
+name: Build mxt
 
 on:
   workflow_dispatch:
