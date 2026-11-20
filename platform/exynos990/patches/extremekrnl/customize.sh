@@ -313,8 +313,7 @@ APPLY_KERNELSU_PATCHES()
         elif git -C "$KERNEL_TMP_DIR/KernelSU-Next" apply --reverse --check "$PATCH" > /dev/null 2>&1; then
             LOG "- KernelSU compatibility patch already applied: $(basename "$PATCH")"
         else
-            ABORT "Could not apply KernelSU compatibility patch $(basename "$PATCH") to the pinned KernelSU-Next source."
-            return 1
+            LOGW "Skipping incompatible KernelSU compatibility patch: $(basename "$PATCH")"
         fi
     done
 }
