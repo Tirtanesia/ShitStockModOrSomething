@@ -1,4 +1,4 @@
-name: Build mxt
+name: Build Nebula
 
 on:
   workflow_dispatch
@@ -115,7 +115,7 @@ jobs:
       - name: Upload c1s ROM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Xui-c1s
+          name: Nebula
           path: |
             out/*.tar*
             out/*.zip*
