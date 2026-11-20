@@ -2,6 +2,7 @@ name: Build
 
 on:
   workflow_dispatch:
+    
 
 jobs:
   build:
@@ -23,7 +24,6 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force
           sudo docker builder prune -a
-
       - name: Free disk space (2/3)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -43,27 +43,20 @@ jobs:
             libzstd-dev lld protobuf-compiler webp \
             build-essential g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
             python-is-python3 python3 wget curl
-
           KERNEL_VER="$(uname -r)"
           if (( ${KERNEL_VER%%.*} < 7 )); then
             DEBIAN_FRONTEND=noninteractive sudo apt install -yq "linux-modules-extra-${KERNEL_VER}" || true
           fi
-
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source "$HOME/.cargo/env"
-
           rustc --version
           cargo --version
-
           wget https://raw.githubusercontent.com/kdrag0n/kramflash/refs/heads/master/mkbootimg.py && sudo ln -sf $(pwd)/mkbootimg.py /usr/bin/mkbootimg && chmod +x /usr/bin/mkbootimg
-
           sudo modprobe erofs f2fs
-
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" | base64 --decode > security/unica_platform.pk8
           echo -n "${{ secrets.PLATFORM_KEY_PEM }}" | base64 --decode > security/unica_platform.x509.pem
-
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -75,7 +68,6 @@ jobs:
         run: |
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/build_dependencies.sh
-
       - name: Download stock firmwares
         uses: nick-fields/retry@v4
         with:
@@ -88,50 +80,30 @@ jobs:
         run: |
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/extract_fw.sh
-
-      - name: Configure swap space
+      - name: Add swap space
         run: |
-          EXISTING_SWAP=$(swapon --show=NAME --noheadings | head -n 1 || true)
-
-          if [ -n "$EXISTING_SWAP" ] && [ "$EXISTING_SWAP" != "/swapfile" ]; then
-            echo "Keeping existing swap: $EXISTING_SWAP"
+          SWAP_FILE=$(swapon --show=NAME | tail -n 1)
+          if [ -n "$SWAP_FILE" ]; then
+            echo "Existing swap found: $SWAP_FILE"
+            sudo swapoff "$SWAP_FILE"
+            sudo rm -f "$SWAP_FILE"
           else
             SWAP_FILE="/swapfile"
-            if [ -n "$EXISTING_SWAP" ]; then
-              sudo swapoff "$SWAP_FILE" || true
-            fi
-            sudo rm -f "$SWAP_FILE"
-
-            AVAILABLE_KB=$(df -Pk / | awk 'NR == 2 {print $4}')
-            SWAP_SIZE_KB=$((AVAILABLE_KB - 2 * 1024 * 1024))
-            if [ "$SWAP_SIZE_KB" -gt 6291456 ]; then
-              SWAP_SIZE_KB=6291456
-            fi
-
-            if [ "$SWAP_SIZE_KB" -lt 1048576 ]; then
-              echo "Not enough disk space to create a swap file"
-              swapon --show
-              df -h /
-              exit 1
-            fi
-
-            SWAP_SIZE_GB=$((SWAP_SIZE_KB / 1024 / 1024))
-            echo "Creating ${SWAP_SIZE_GB}G swap file"
-            sudo fallocate -l "${SWAP_SIZE_GB}G" "$SWAP_FILE"
-            sudo chmod 600 "$SWAP_FILE"
-            sudo mkswap "$SWAP_FILE"
-            sudo swapon "$SWAP_FILE"
+            echo "No existing swap found. Creating $SWAP_FILE"
           fi
-
+          sudo fallocate -l 12G "$SWAP_FILE"
+          sudo chmod 600 "$SWAP_FILE"
+          sudo mkswap "$SWAP_FILE"
+          sudo swapon "$SWAP_FILE"
           echo "Swap configured:"
           free -h
           swapon --show
-
+      
       - name: Build ROM
         run: |
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/make_rom.sh
-
+          
       - name: Upload c1s ROM artifact
         uses: actions/upload-artifact@v4
         with:
@@ -139,7 +111,6 @@ jobs:
           path: |
             out/*.tar*
             out/*.zip*
-
       - name: Upload ROM to Pixeldrain
         env:
           PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
@@ -149,10 +120,10 @@ jobs:
               FILENAME=$(basename "$file")
               FILESIZE=$(du -h "$file" | cut -f1)
               echo "Mengunggah $FILENAME ($FILESIZE) ke Pixeldrain..."
-
+              
               RESPONSE=$(curl -f -T "$file" -u ":$PIXELDRAIN_API_KEY" "https://pixeldrain.com")
               FILE_ID=$(echo "$RESPONSE" | jq -r '.id')
-
+              
               if [ "$FILE_ID" != "null" ] && [ -n "$FILE_ID" ]; then
                 echo "=========================================="
                 echo "Berhasil! Link download ($FILENAME):"
@@ -164,3 +135,4 @@ jobs:
               fi
             fi
           done
+       
