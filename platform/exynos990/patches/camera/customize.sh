@@ -151,8 +151,8 @@ else
     # the normal continuation.  Force that branch when the legacy Exynos HEVC
     # OMX encoder reports temporal SVC as unsupported.
     # HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" \
-        "e10f40b9e28b40b9e00313aa11f7059400020034fa03002a" \
-        "e10f40b9e28b40b9e00313aa11f7059410000014fa03002a"
+    #   "e10f40b9e28b40b9e00313aa11f7059400020034fa03002a" \
+    #   "e10f40b9e28b40b9e00313aa11f7059410000014fa03002a"
 
     # Android 17 asks for OMX_VIDEO_HEVCProfileMain10HDR10Plus (0x2000), but
     # the Exynos 990 Android 11 OMX component advertises Main, Main10 and
