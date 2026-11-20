@@ -66,9 +66,13 @@ done < <(jq -r '.phone[].filename?, .dex[].filename? | select(type == "string" a
 # then tries to open com.samsung.android.wallpaper.res/null and never reaches
 # the decoder. Keep the package version and all unrelated One UI 9 sidecars.
 jq --slurpfile target "$TARGET_RAW_DIR/resources_info.json" \
-    '.phone = $target[0].phone |
-     .dex = $target[0].dex |
-     .types = ($target[0].types // [])' \
+    '.phone = ($target[0].phone // []) |
+     .dex = ($target[0].dex // []) |
+     .types = [
+         ($target[0].phone // [])[] |
+         select(.isDefault == true and ((.filename // "") | length > 0)) |
+         {which, screen, type}
+     ]' \
     "$SOURCE_RAW_DIR/resources_info.json" > "$SOURCE_RAW_DIR/resources_info.json.new" || \
     ABORT "Failed to merge target wallpaper catalogue"
 
